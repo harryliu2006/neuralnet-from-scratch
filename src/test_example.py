@@ -40,7 +40,7 @@ def main():
         layer_sizes,
         X_train, Y_train,
         X_val,   Y_val,
-        epochs=5000, lr=0.1, patience=20, min_delta=1e-3, print_every=100
+        epochs=20000, lr=0.003, patience=50, min_delta=1e-4, print_every=100
     )
 
     tr = accuracy(W, B, X_train, Y_train)
