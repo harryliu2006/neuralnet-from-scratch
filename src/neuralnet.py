@@ -18,12 +18,21 @@ def standardize_train_val(X_train, X_val):
 def sigmoid(z):
     return 1.0 / (1.0 + np.exp(-z))
 
+def relu(z): 
+    return np.maximum(0,z)
+
+def relu_derivative(z): 
+    return (z>0).astype(float)
+
 def feed_forward(X, W, B):
     A, Z = {0: X}, {}
     L = len(W)
     for l in range(1, L + 1):
         Z[l] = W[l] @ A[l - 1] + B[l]
-        A[l] = sigmoid(Z[l])
+        if l == L: 
+            A[l] = sigmoid(Z[l])
+        else: 
+            A[l] = relu(Z[l])
     return A, Z
 
 def bce_loss(Y_hat, Y, eps=1e-12):
@@ -37,13 +46,15 @@ def backprop(A, Z, Y, W):
     L = len(W)
     m = Y.shape[1]
 
+    #output layer
     dZ = (A[L] - Y) / m
     grads[f"dC_dW{L}"] = dZ @ A[L - 1].T
     grads[f"dC_db{L}"] = np.sum(dZ, axis=1, keepdims=True)
     dA_prev = W[L].T @ dZ
 
+    #hidden layers
     for l in range(L - 1, 0, -1):
-        dZ = dA_prev * (A[l] * (1 - A[l]))
+        dZ = dA_prev * relu_derivative(Z[l])
         grads[f"dC_dW{l}"] = dZ @ A[l - 1].T
         grads[f"dC_db{l}"] = np.sum(dZ, axis=1, keepdims=True)
         if l > 1:
